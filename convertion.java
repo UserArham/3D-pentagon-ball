@@ -1,0 +1,207 @@
+import javafx.application.Application;  
+import javafx.scene.Scene;  
+import javafx.scene.web.WebView;  
+import javafx.scene.layout.StackPane;  
+import javafx.stage.Stage; 
+
+public class JellySlimeApp extends Application { 
+
+@Override  
+public void start(Stage stage) {  
+// Create a mini web browser component  
+WebView webView = new WebView(); 
+
+// This is your HTML code stored inside a Java text block  
+String htmlCode = """  
+  
+  
+  
+  
+Three.js Jelly Slime with Spin & Mouse  
+  
+body { margin:0; overflow:hidden; background:#222; }  
+canvas { display:block; }  
+.controls { position:absolute; top:10px; left:10px; color:white; font-family:Roboto,sans-serif; }  
+  
+  
+  
+  
+Color:  
+Size:  
+  
+  
+import \* as THREE from 'https://cdn.jsdelivr.net/npm/three@0.147/build/three.module.js'; 
+
+let scene = new THREE.Scene();  
+let camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);  
+camera.position.set(0,0,5); 
+
+let renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});  
+renderer.setSize(window.innerWidth, window.innerHeight);  
+document.body.appendChild(renderer.domElement); 
+
+// Light  
+let light = new THREE.PointLight(0xffffff,1);  
+light.position.set(5,5,5);  
+scene.add(light); 
+
+// Controls  
+let colorInput = document.getElementById("colorPicker");  
+let sizeSlider = document.getElementById("sizeSlider"); 
+
+// Material  
+let material = new THREE.MeshStandardMaterial({  
+color: new THREE.Color(colorInput.value),  
+transparent: true,  
+opacity: 0.7,  
+roughness: 0.5,  
+metalness: 0  
+}); 
+
+// Geometry  
+let sphereGeom = new THREE.IcosahedronGeometry(1,5);  
+let sphere = new THREE.Mesh(sphereGeom, material);  
+scene.add(sphere); 
+
+// Soft-body setup  
+let origPositions = sphereGeom.attributes.position.array.slice();  
+let vertices = sphereGeom.attributes.position.array;  
+let velocities = new Float32Array(vertices.length);  
+let damping = 0.85;  
+let spring = 0.2;  
+let jiggle = 0.02; 
+
+// Spin  
+let spinVelocity = new THREE.Vector3(0,0,0);  
+let spinDamping = 0.9; 
+
+// Resize  
+window.addEventListener('resize', ()=>{  
+camera.aspect = window.innerWidth/window.innerHeight;  
+camera.updateProjectionMatrix();  
+renderer.setSize(window.innerWidth, window.innerHeight);  
+}); 
+
+// Interaction state  
+let isDragging = false;  
+let prevPos =;  
+let pinchDist = 0, startScale = 1; 
+
+// Utilities  
+function distance(t0,t1){  
+return Math.hypot(t0\[0\]-t1\[0\], t0\[1\]-t1\[1\]);  
+} 
+
+// Touch events  
+renderer.domElement.addEventListener('touchstart', e=>{  
+if(e.touches.length === 1){  
+isDragging = true;  
+prevPos = \[e.touches\[0\].clientX, e.touches\[0\].clientY\];  
+// Boop jiggle + spin  
+for(let i=0;i<velocities.length;i++) velocities\[i\] += (Math.random()-0.5)\*jiggle;  
+spinVelocity.x += (Math.random()-0.5)\*0.05;  
+spinVelocity.y += (Math.random()-0.5)\*0.05;  
+spinVelocity.z += (Math.random()-0.5)\*0.05;  
+} else if(e.touches.length === 2){  
+pinchDist = distance(\[e.touches\[0\].clientX, e.touches\[0\].clientY\], \[e.touches\[1\].clientX, e.touches\[1\].clientY\]);  
+startScale = sphere.scale.x;  
+}  
+}); 
+
+renderer.domElement.addEventListener('touchmove', e=>{  
+e.preventDefault();  
+if(e.touches.length === 1 && isDragging){  
+let dx = e.touches\[0\].clientX - prevPos\[0\];  
+let dy = e.touches\[0\].clientY - prevPos\[1\];  
+prevPos = \[e.touches\[0\].clientX, e.touches\[0\].clientY\];  
+sphere.position.x += dx \* 0.005;  
+sphere.position.y -= dy \* 0.005;  
+} else if(e.touches.length === 2){  
+let newDist = distance(\[e.touches\[0\].clientX, e.touches\[0\].clientY\], \[e.touches\[1\].clientX, e.touches\[1\].clientY\]);  
+let scale = startScale \* newDist / pinchDist;  
+sphere.scale.set(scale, scale, scale);  
+}  
+}); 
+
+renderer.domElement.addEventListener('touchend', e=>{  
+if(e.touches.length === 0) isDragging = false;  
+}); 
+
+// Mouse support  
+renderer.domElement.addEventListener('mousedown', e=>{  
+if(e.button === 0){  
+isDragging = true;  
+prevPos = \[e.clientX, e.clientY\];  
+for(let i=0;i<velocities.length;i++) velocities\[i\] += (Math.random()-0.5)\*jiggle;  
+spinVelocity.x += (Math.random()-0.5)\*0.05;  
+spinVelocity.y += (Math.random()-0.5)\*0.05;  
+spinVelocity.z += (Math.random()-0.5)\*0.05;  
+}  
+}); 
+
+renderer.domElement.addEventListener('mousemove', e=>{  
+if(isDragging){  
+let dx = e.clientX - prevPos\[0\];  
+let dy = e.clientY - prevPos\[1\];  
+prevPos = \[e.clientX, e.clientY\];  
+sphere.position.x += dx \* 0.005;  
+sphere.position.y -= dy \* 0.005;  
+}  
+}); 
+
+renderer.domElement.addEventListener('mouseup', e=>{  
+if(e.button === 0) isDragging = false;  
+}); 
+
+renderer.domElement.addEventListener('wheel', e=>{  
+e.preventDefault();  
+let scale = sphere.scale.x \* (1 - e.deltaY \* 0.001);  
+sphere.scale.set(scale, scale, scale);  
+}, {passive:false}); 
+
+// Animation  
+function animate(){  
+requestAnimationFrame(animate);  
+for(let i=0; i<vertices.length; i++){  
+let orig = origPositions\[i\];  
+velocities\[i\] += (orig - vertices\[i\]) \* spring;  
+velocities\[i\] \*= damping;  
+vertices\[i\] += velocities\[i\];  
+}  
+sphereGeom.attributes.position.needsUpdate = true;  
+sphereGeom.computeVertexNormals(); 
+
+sphere.rotation.x += spinVelocity.x;  
+sphere.rotation.y += spinVelocity.y;  
+sphere.rotation.z += spinVelocity.z;  
+spinVelocity.multiplyScalar(spinDamping); 
+
+material.color.set(colorInput.value); 
+
+let s = parseFloat(sizeSlider.value);  
+sphere.scale.set(s, s, s); 
+
+renderer.render(scene, camera);  
+}  
+animate();  
+  
+  
+  
+"""; 
+
+// Load the HTML content into the view  
+webView.getEngine().loadContent(htmlCode); 
+
+// Put the view inside the application window  
+StackPane root = new StackPane(webView);  
+Scene scene = new Scene(root, 800, 600); 
+
+stage.setTitle("Java Three.js Jelly Slime");  
+stage.setScene(scene);  
+stage.show();  
+} 
+
+public static void main(String\[\] args) {  
+launch(args);  
+}  
+}
