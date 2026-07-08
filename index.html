@@ -12,7 +12,7 @@ canvas { display:block; }
 <body>
 <div class="controls">
 Color: <input type="color" id="colorPicker" value="#b6c41d">
-Size: <input type="range" id="sizeSlider" min="0.5" max="3.5" step="0.01" value="1">
+Size: <input type="range" id="sizeSlider" min="0.5" max="5.25" step="0.01" value="1">
 </div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.147/build/three.module.js';
@@ -53,8 +53,8 @@ let origPositions = sphereGeom.attributes.position.array.slice();
 let vertices = sphereGeom.attributes.position.array;
 let velocities = new Float32Array(vertices.length);
 let damping = 0.85;
-let spring = 0.2;
-let jiggle = 0.02;
+let spring = 0.25;
+let jiggle = 0.025;
 
 // Spin
 let spinVelocity = new THREE.Vector3(0,0,0);
