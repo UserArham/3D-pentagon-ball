@@ -11,10 +11,14 @@ canvas { display:block; }
 </head>
 <body>
 <div class="controls">
-Color: <input type="color" id="colorPicker" value="#b6c41d">
-Size: <input type="range" id="sizeSlider" min="0.5" max="4.75" step="0.01" value="1">
-</div>
+Color:
+<input type="color" id="colorPicker" value="#b6c41d">
+
+Size:
+<input type="range" id="sizeSlider" min="0.5" max="4.75" step="0.01" value="1">
+
 <button id="openLogs">Logs</button>
+</div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.147/build/three.module.js';
 
@@ -177,7 +181,7 @@ function animate(){
 }
 animate();
 document.getElementById("openLogs").addEventListener("click", () => {
-    const logWindow = window.open("logs.js", "_blank", "noopener");
+    const logWindow = window.open(".commit/logs.js", "_blank", "noopener");
 
     if (!logWindow) {
         console.warn("Popup blocked. Could not open logs.js.");
