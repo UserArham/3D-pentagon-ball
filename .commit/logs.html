@@ -453,49 +453,13 @@ addLog(
 
 });
 
-let fps=0;
-let pageVisible=true;
-let lowFPS=false;
-
-document.addEventListener("visibilitychange",()=>{
-    pageVisible=!document.hidden;
-    if(!pageVisible){
-        document.getElementById("fpsValue").textContent="Paused";
+// FPS is supplied by the main demo via postMessage().
+window.addEventListener("message",(event)=>{
+    const d=event.data;
+    if(d && d.fps!==undefined){
+        document.getElementById("fpsValue").textContent=d.fps;
     }
-});
-
-setInterval(()=>{
-
-    if(!pageVisible){
-        fps=0;
-        return;
-    }
-
-    document.getElementById("fpsValue").textContent=fps;
-
-    if(fps<20){
-        if(!lowFPS){
-            addLog("WARN","Low FPS ("+fps+" FPS)");
-            lowFPS=true;
-        }
-    }else if(lowFPS){
-        addLog("SUCCESS","FPS returned to normal.");
-        lowFPS=false;
-    }
-
-    fps=0;
-
-},1000);
-
-function frame(){
-
-fps++;
-
-requestAnimationFrame(frame);
-
-}
-
-frame();
+}, {capture:false});
 
 addLog(
 "INFO",
