@@ -1,0 +1,3 @@
+logs = setup complete
+
+// Added JS to show logs
