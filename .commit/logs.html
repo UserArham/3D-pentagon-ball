@@ -454,21 +454,36 @@ addLog(
 });
 
 let fps=0;
+let pageVisible=true;
+let lowFPS=false;
+
+document.addEventListener("visibilitychange",()=>{
+    pageVisible=!document.hidden;
+    if(!pageVisible){
+        document.getElementById("fpsValue").textContent="Paused";
+    }
+});
 
 setInterval(()=>{
 
-document.getElementById("fpsValue").textContent=fps;
+    if(!pageVisible){
+        fps=0;
+        return;
+    }
 
-if(fps<20){
+    document.getElementById("fpsValue").textContent=fps;
 
-addLog(
-"WARN",
-"Low FPS ("+fps+" FPS)"
-);
+    if(fps<20){
+        if(!lowFPS){
+            addLog("WARN","Low FPS ("+fps+" FPS)");
+            lowFPS=true;
+        }
+    }else if(lowFPS){
+        addLog("SUCCESS","FPS returned to normal.");
+        lowFPS=false;
+    }
 
-}
-
-fps=0;
+    fps=0;
 
 },1000);
 
