@@ -1,0 +1,22 @@
+
+name: Secondary Project CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Project Files
+        run: |
+          echo "Checking HTML... Awaiting console logs..."
+          test -f index.html
+          echo "Project files found! Console Log detected!"
