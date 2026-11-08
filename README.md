@@ -8,3 +8,16 @@ This also is made by React.
 
 <img width="1365" height="767" alt="image" src="https://github.com/user-attachments/assets/ce855c8c-f74a-4414-ada5-a0056d3aad17" />
 
+<details>
+<summary>FAQ 📢</summary>
+
+<br>
+
+Q - What is it made?
+A - Made using Three.js 147.
+
+Q - Does it use OpenGL or WebGL?
+A - WebGL 2, but it uses OpenGL ES 3.0 Chromium.
+
+Q - Is it free?
+A - Yes.
